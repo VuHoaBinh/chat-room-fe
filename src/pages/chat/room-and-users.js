@@ -25,10 +25,10 @@ const RoomAndUsers = ({ socket, username, room }) => {
 
   return (
     <div className={styles.roomAndUsersColumn}>
+      <h2 className={styles.roomTitle}>{room}</h2>
       <button className="btn btn-outline" onClick={leaveRoom}>
         <i className="fa-solid fa-backward-fast"></i> Back
       </button>
-      <h2 className={styles.roomTitle}>{room}</h2>
       <div>
         {roomUsers.length > 0 && <h5 className={styles.usersTitle}>Users:</h5>}
         <ul className={styles.usersList}>

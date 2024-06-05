@@ -10,6 +10,7 @@ const Home = ({ username, setUsername, room, setRoom, socket }) => {
   const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
   const passwordRegex = /^.{6,}$/;
   const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [userAccounts, setUserAccounts] = useState([]);
 
   const joinRoom = () => {
     if (room === "-- Select Room --") {
@@ -25,46 +26,56 @@ const Home = ({ username, setUsername, room, setRoom, socket }) => {
   const [currentView, setCurrentView] = useState("login");
 
   const toggleRoomSelect = () => {
-    const savedEmail = localStorage.getItem("email");
-    const savedPassword = localStorage.getItem("password");
+    const savedAccounts =
+      JSON.parse(localStorage.getItem("userAccounts")) || [];
+    const account = savedAccounts.find((acc) => acc.email === email);
 
-    console.log(savedEmail, savedPassword);
-    console.log(email, password);
+    if (!account) {
+      alert("Please enter a valid email address.");
+      return;
+    }
+    if (account.password !== password) {
+      alert("Password wrong.");
+      return;
+    }
     if (username.trim() === "") {
       alert("Please enter a username.");
       return;
     }
 
-    if (email !== savedEmail) {
-      alert("Please enter a valid email address.");
-      return;
-    }
-    if (password !== savedPassword) {
-      alert("Password wrong.");
-      return;
-    }
-    setEmail(savedEmail);
-    setPassword(savedPassword);
-
     setCurrentView("room_select");
   };
 
   const toggleRegister = () => {
-    setCurrentView("register");
+    if (currentView !== "register") {
+      setCurrentView("register");
+      return;
+    }
     if (!emailRegex.test(email)) {
       alert("Please enter a valid email address.");
       return;
     }
     if (!passwordRegex.test(password)) {
-      alert("Password must be at least 6 characters ");
+      alert("Password must be at least 6 characters.");
       return;
     }
     if (password !== passwordConfirm) {
       alert("Passwords do not match.");
       return;
     }
-    localStorage.setItem("email", email);
-    localStorage.setItem("password", password);
+
+    const savedAccounts =
+      JSON.parse(localStorage.getItem("userAccounts")) || [];
+    const accountExists = savedAccounts.some((acc) => acc.email === email);
+
+    if (accountExists) {
+      alert("An account with this email already exists.");
+      return;
+    }
+
+    const newAccounts = [...savedAccounts, { email, password }];
+    localStorage.setItem("userAccounts", JSON.stringify(newAccounts));
+
     alert("Registration successful. Please log in.");
     setCurrentView("login");
   };
